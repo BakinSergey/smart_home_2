@@ -1,5 +1,6 @@
 extern crate smart_home_api;
 
+use std::collections::HashSet;
 use smart_home_api::{devices, home, providers};
 
 use devices::device::{SmartDevice, VecOfDevice};
@@ -59,13 +60,13 @@ fn main() {
     let storeroom = "Storeroom".to_string();
     let storeroom_devices: VecOfDevice = vec![Box::new(socket4), Box::new(kettle2)];
 
-    house.add_room(storeroom, storeroom_devices);
+    house.add_room(storeroom.clone(), storeroom_devices);
 
     // Библиотека позволяет запросить список помещений в доме.
-    let rooms: Vec<String> = house.get_rooms();
+    let _rooms: HashSet<String> = house.get_rooms();
 
     // Библиотека позволяет получать список устройств в помещении.
-    let _room_devices = house.devices(&rooms[0]);
+    let _room_devices = house.devices(&storeroom);
 
     // Библиотека имеет функцию, возвращающую текстовый отчёт о состоянии дома.
 

@@ -1,11 +1,11 @@
 use crate::devices::device::{SmartDevice, VecOfDevice};
 use crate::providers::provider::{
     DeviceInfoProvider,
-    DeviceTypeInfoProvider,
     DeviceTypeInfoAltProvider,
+    DeviceTypeInfoProvider,
     IterableProvider};
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 
 pub struct SmartHome {
@@ -31,15 +31,15 @@ impl SmartHome {
         self.rooms.insert(name, room_devices);
     }
 
-    pub fn get_rooms(&self) -> Vec<String> {
+    pub fn get_rooms(&self) -> HashSet<String> {
         let res = self.rooms.keys().cloned().collect();
         res
     }
 
-    pub fn devices(&self, room: &str) -> Vec<String> {
+    pub fn devices(&self, room: &str) -> HashSet<String> {
         match self.rooms.get(room) {
             Some(room_devices) => room_devices.keys().cloned().collect(),
-            None => Vec::new()
+            None => HashSet::new()
         }
     }
 
@@ -126,6 +126,46 @@ impl SmartHome {
         }
         report
     }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    fn setup() -> SmartHome {
+        let mut house = SmartHome::new(String::from("MyHome"));
+        let rooms: HashSet<String> = HashSet::from(["Kitchen".to_string(), "Dining".to_string(), "Living".to_string()]);
+        for room in rooms {
+            house.add_room(String::from(room), VecOfDevice::new())
+        };
+        house
+    }
 
 
+    #[test]
+    fn test_get_rooms() {
+        let house = setup();
+        assert_ne!(house.get_rooms().len(), 0);
+    }
+
+    #[test]
+    fn test_get_devices() {
+        let house = setup();
+        let rooms = house.get_rooms();
+
+        for room in &rooms {
+            assert_eq!(house.devices(&room).len() == 0usize, true);
+        }
+    }
+
+    #[test]
+    fn test_get_report() {
+        let house = setup();
+        let rooms = house.get_rooms();
+        let report = house.create_report();
+
+        for room in rooms {
+            assert!(report.contains(room.as_str()));
+        }
+    }
 }
