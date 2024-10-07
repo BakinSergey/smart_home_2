@@ -1,0 +1,7 @@
+[package]
+name = "smart_home_cmd"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+smart_home_api = { version = "0.1.0", path = "../smart_home_api" }
