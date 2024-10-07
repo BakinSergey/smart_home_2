@@ -91,12 +91,12 @@ fn main() {
     // Выводим отчёты на экран:
     println!("Report #1: {report1}");
     println!("====================");
-    // println!("Report #2: {report2}");
+    println!("Report #2: {report2}");
 
     // Полный отчет о состоянии устройств в доме
     let report3 = house.create_report();
     println!("====================");
-    // println!("Report #3: {report3}");
+    println!("Report #3: {report3}");
 
 
     // Если устройство не найдено в источнике информации,
@@ -114,17 +114,17 @@ fn main() {
     // Отчет о состоянии всех Розеток в доме
     let report4 = house.create_device_type_provider_report(&dtip_socket);
     println!("====================");
-    // println!("Report #4: {report4}");
+    println!("Report #4: {report4}");
 
     // Отчет о состоянии всех Термометров в доме
     let report5 = house.create_device_type_provider_report(&dtip_thermo);
     println!("====================");
-    // println!("Report #5: {report5}");
+    println!("Report #5: {report5}");
 
     // Отчет о состоянии всех Чайников в доме
     let report6 = house.create_device_type_provider_report(&dtip_kettle);
     println!("====================");
-    // println!("Report #6: {report6}");
+    println!("Report #6: {report6}");
 
     // Привести пример типа,
     // предоставляющего текстовую информацию об устройствах в доме для составления отчёта.

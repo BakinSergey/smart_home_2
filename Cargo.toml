@@ -1,0 +1,7 @@
+[workspace]
+members = [
+    "smart_home_api",
+    "smart_home_cmd"
+]
+
+resolver = "2"
