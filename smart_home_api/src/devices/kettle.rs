@@ -37,7 +37,6 @@ impl Kettle {
     }
 }
 
-
 impl SmartDevice for Kettle {
     fn get_type(&self) -> DeviceType {
         self.dev_type.clone()

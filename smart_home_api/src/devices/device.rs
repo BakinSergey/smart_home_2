@@ -29,7 +29,6 @@ impl fmt::Display for DeviceState {
     }
 }
 
-
 pub trait SmartDevice {
     /// тип устройства
     fn get_type(&self) -> DeviceType;
@@ -55,14 +54,15 @@ pub trait SmartDevice {
     }
 
     fn report(&self) -> String {
-        format!("Устройство: {}
+        format!(
+            "Устройство: {}
     Описание: {}
     Состояние: {}
     Текущие параметры: {}",
-                self.get_name(),
-                self.get_description(),
-                self.device_state(),
-                self.get_current_state()
+            self.get_name(),
+            self.get_description(),
+            self.device_state(),
+            self.get_current_state()
         )
     }
 }

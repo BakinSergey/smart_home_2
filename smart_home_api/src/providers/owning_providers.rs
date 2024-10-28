@@ -46,7 +46,7 @@ mod test {
         let res = provider.get_device_info(&house, &kitchen, &smart_hammer);
 
         assert!(res.is_err());
-        assert!(res.err().unwrap().to_string().contains("нет устройства"));
+        assert!(res.err().unwrap().msg.contains("нет устройства"));
     }
 
     #[test]
