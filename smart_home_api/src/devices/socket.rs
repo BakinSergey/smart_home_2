@@ -41,7 +41,6 @@ impl Socket {
     }
 }
 
-
 impl SmartDevice for Socket {
     fn get_type(&self) -> DeviceType {
         self.dev_type.clone()

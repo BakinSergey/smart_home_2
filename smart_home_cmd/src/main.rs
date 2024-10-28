@@ -10,12 +10,8 @@ use devices::thermometer::Thermometer as SmartThermometer;
 
 use providers::borrowing_providers::BorrowingDeviceInfoProvider;
 use providers::owning_providers::OwningDeviceInfoProvider;
-use providers::type_providers::{KettleDeviceInfoProvider, SocketDeviceInfoProvider, ThermometerDeviceInfoProvider};
-use providers::type_providers_alt::DeviceInfo;
 
 use home::SmartHome;
-use smart_home_api::devices::socket::Socket;
-
 
 fn main() {
     // Инициализация устройств
@@ -26,6 +22,9 @@ fn main() {
     socket3.set_broken();
 
     let socket4 = SmartSocket::new("4");
+
+    //will be ==not found==
+    let socket5 = SmartSocket::new("5");
 
     let thermo1 = SmartThermometer::new("1");
     let thermo2 = SmartThermometer::new("2");
@@ -40,27 +39,30 @@ fn main() {
 
     // кухня
     let kitchen = "Kitchen".to_string();
-    let kitchen_devices: Vec<Box<dyn SmartDevice>> = vec![Box::new(socket1.clone()), Box::new(kettle1)];
+    let kitchen_devices: Vec<Box<dyn SmartDevice>> =
+        vec![Box::new(socket1.clone()), Box::new(kettle1)];
 
-    house.add_room(kitchen, kitchen_devices);
+    house.add_room(kitchen, kitchen_devices).unwrap();
 
     // гостиная
     let living = "Living".to_string();
     let living_devices: VecOfDevice = vec![Box::new(socket2.clone()), Box::new(thermo1.clone())];
 
-    house.add_room(living, living_devices);
+    house.add_room(living, living_devices).unwrap();
 
     // спальня
     let bedroom = "Bedroom".to_string();
     let bedroom_devices: VecOfDevice = vec![Box::new(socket3), Box::new(thermo2)];
 
-    house.add_room(bedroom, bedroom_devices);
+    house.add_room(bedroom, bedroom_devices).unwrap();
 
     // смарт-кладовка
     let storeroom = "Storeroom".to_string();
     let storeroom_devices: VecOfDevice = vec![Box::new(socket4), Box::new(kettle2)];
 
-    house.add_room(storeroom.clone(), storeroom_devices);
+    house
+        .add_room(storeroom.clone(), storeroom_devices)
+        .unwrap();
 
     // Библиотека позволяет запросить список помещений в доме.
     let _rooms: HashSet<String> = house.get_rooms();
@@ -76,9 +78,7 @@ fn main() {
     // (В отчет включаются только устройства содержащиеся в провайдере)
 
     // Строим отчёт с использованием `OwningDeviceInfoProvider`.
-    let info_provider_1 = OwningDeviceInfoProvider {
-        socket: socket1,
-    };
+    let info_provider_1 = OwningDeviceInfoProvider { socket: socket1 };
 
     let report1 = house.create_provider_report(&info_provider_1);
 
@@ -99,45 +99,15 @@ fn main() {
     println!("====================");
     println!("Report #3: {report3}");
 
-
     // Если устройство не найдено в источнике информации,
     // то вместо текста о состоянии вернуть сообщение об ошибке.
-
-    // см. модуль smart_home_api::providers::{owning_providers, borrowing_providers}::test
-
-    // advanced
-
-    // создаем провайдеры информации по типу устройства:
-    let dtip_socket = SocketDeviceInfoProvider;
-    let dtip_thermo = ThermometerDeviceInfoProvider;
-    let dtip_kettle = KettleDeviceInfoProvider;
-
-    // Отчет о состоянии всех Розеток в доме
-    let report4 = house.create_device_type_provider_report(&dtip_socket);
+    // (см.также модуль smart_home_api::providers::{owning_providers, borrowing_providers}::test)
+    let info_provider_3 = BorrowingDeviceInfoProvider {
+        socket: &socket5,
+        thermo: &thermo1,
+    };
+    let report4 = house.create_provider_report(&info_provider_3);
+    // Выводим отчёты на экран:
     println!("====================");
     println!("Report #4: {report4}");
-
-    // Отчет о состоянии всех Термометров в доме
-    let report5 = house.create_device_type_provider_report(&dtip_thermo);
-    println!("====================");
-    println!("Report #5: {report5}");
-
-    // Отчет о состоянии всех Чайников в доме
-    let report6 = house.create_device_type_provider_report(&dtip_kettle);
-    println!("====================");
-    println!("Report #6: {report6}");
-
-    // Привести пример типа,
-    // предоставляющего текстовую информацию об устройствах в доме для составления отчёта.
-
-    // info_provider_1, info_provider_2, dtip_socket, dtip_thermo, dtip_kettle
-
-    // alt device type providers
-    let dtip_alt_socket = DeviceInfo::<Socket>::new();
-    let report7 = house.create_alt_device_type_provider_report(&dtip_alt_socket);
-    println!("====================");
-    println!("Report #7: {report7}");
 }
-
-
-

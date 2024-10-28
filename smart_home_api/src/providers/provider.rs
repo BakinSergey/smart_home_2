@@ -1,57 +1,28 @@
-use crate::devices::device::SmartDevice;
+use crate::error::{SmartHomeError, SmartHomeResult};
 use crate::home::SmartHome;
-use crate::providers::type_providers_alt::DeviceInfo;
+use std::collections::HashSet;
 
 pub trait DeviceInfoProvider {
     /// метод, возвращающий состояние устройства по имени комнаты и имени устройства
-    fn get_device_info(&self, house: &SmartHome, room: &String, device: &String) -> String {
-        house.rooms.get(room).unwrap_or_else(|| panic!("В доме <<{}>> нет  помещения <<{}>>", house.name, room))
-            .get(device).unwrap_or_else(|| panic!("В помещении: <<{}>> нет устройства: <<{}>>", room, device))
-            .report()
-    }
-}
+    fn get_device_info(
+        &self,
+        house: &SmartHome,
+        room: &String,
+        device: &String,
+    ) -> SmartHomeResult<String> {
+        let no_room = format!("В доме <<{}>> нет помещения <<{}>>", house.name, room);
+        let no_device = format!("В помещении: <<{}>> нет устройства: <<{}>>", room, device);
 
-pub trait DeviceTypeInfoProvider {
-    type DeviceType: SmartDevice;
-
-    fn create_stub(&self) -> Self::DeviceType;
-
-    fn get_device_info(&self, house: &SmartHome, room: &String, device: &String) -> Option<String> {
-        let device = house.rooms.get(room).unwrap_or_else(|| panic!("В доме <<{}>> нет  помещения <<{}>>", house.name, room))
-            .get(device).unwrap_or_else(|| panic!("В помещении: <<{}>> нет устройства: <<{}>>", room, device));
-
-        let stub = self.create_stub();
-
-        if stub.get_type() == device.get_type() {
-            Some(device.report())
-        } else {
-            None
+        match house.rooms.get(room) {
+            Some(room) => match room.get(device) {
+                Some(device) => Ok(device.report()),
+                None => Err(SmartHomeError::from(no_device)),
+            },
+            None => Err(SmartHomeError::from(no_room)),
         }
     }
 }
 
 pub trait IterableProvider {
-    fn as_vec(&self) -> Vec<String>;
-}
-
-pub trait DeviceStructInfoProvider {
-    fn get_device_info(&self, house: &SmartHome, room: &str, device: &str) -> Option<String>;
-}
-
-pub trait DeviceTypeInfoAltProvider {
-    fn get_device_info(&self, house: &SmartHome, room: &str, device: &str) -> Option<String>;
-}
-
-impl<T: SmartDevice> DeviceTypeInfoAltProvider for DeviceInfo<T>
-{
-    fn get_device_info(&self, house: &SmartHome, room: &str, device: &str) -> Option<String> {
-        let device = house.rooms.get(room).unwrap_or_else(|| panic!("В доме <<{}>> нет  помещения <<{}>>", house.name, room))
-            .get(device).unwrap_or_else(|| panic!("В помещении: <<{}>> нет устройства: <<{}>>", room, device));
-
-        if self.device_stub.get_type() == device.get_type() {
-            Some(device.report())
-        } else {
-            None
-        }
-    }
+    fn as_set(&self) -> HashSet<String>;
 }
