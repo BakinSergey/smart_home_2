@@ -106,7 +106,7 @@ fn main() {
     let twice_device = house.add_device(&storeroom, Box::new(socket6clone));
     assert!(twice_device.is_err());
     assert!(twice_device.err().unwrap().msg.contains("уже есть"));
-    // storeroom_devices: VecOfDevice = vec![Box::new(socket4), Box::new(kettle2)];
+    // storeroom_devices: Box::new(socket4), Box::new(kettle2), Box::new(socket6)
 
     // uc 2.3 Библиотека позволяет удалить устройство в помещении.
     let devices_before = house.devices(&storeroom).unwrap().len();
