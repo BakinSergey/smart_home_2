@@ -1,0 +1,94 @@
+json!([
+              {
+                "id": "bdf90afa-a688-4179-841b-9de390e6c9fa",
+                "method": "addRoom",
+                "params": {
+                  "name": "library"
+                },
+                "jsonrpc": "2.0"
+              },
+              {
+                "id": "adb14d8f-e9b1-479c-91d9-d7774b1c1fe6",
+                "method": "delRoom",
+                "params": {
+                  "name": "kitchen"
+                },
+                "jsonrpc": "2.0"
+              },
+              {
+                "id": "c2eb7474-0b15-44c2-b358-9e8d639ddee5",
+                "method": "getDevices",
+                "params": {
+                  "room": "living"
+                },
+                "jsonrpc": "2.0"
+              },
+              {
+                "id": "fe2cac55-8a03-4d63-a8cd-0b07e0f4b806",
+                "method": "createReport",
+                "params": {},
+                "jsonrpc": "2.0"
+              },
+              {
+                "id": "c80a0589-1749-4118-8c9e-262834f73e82",
+                "method": "reset",
+                "params": {},
+                "jsonrpc": "2.0"
+              },
+              {
+                "id": "c4220b7c-247b-4cf5-b0c3-fcfc2622a0fd",
+                "method": "deviceExecute",
+                "params": {
+                  "room": "living",
+                  "device": "Thermometer 1",
+                  "command": "get_current_info",
+                  "data": []
+                },
+                "jsonrpc": "2.0"
+              },
+              {
+                "id": "09fbad8c-8fcc-443a-90cb-9b263506bd7c",
+                "method": "deviceExecute",
+                "params": {
+                  "room": "storeroom",
+                  "device": "Smart Socket 6",
+                  "command": "report",
+                  "data": []
+                },
+                "jsonrpc": "2.0"
+              },
+              {
+                "id": "0f13cab5-b624-4f0b-a34b-653c2d8c954f",
+                "method": "deviceExecute",
+                "params": {
+                  "room": "bedroom",
+                  "device": "Smart Socket 3",
+                  "command": "switch",
+                  "data": ["on"]
+                },
+                "jsonrpc": "2.0"
+              },
+              {
+                "id": "0f13cab5-b624-4f0b-a34b-653c2d8c954f",
+                "method": "deviceExecute",
+                "params": {
+                  "room": "storeroom",
+                  "device": "Smart Socket 4",
+                  "command": "switch",
+                  "data": ["on"]
+                },
+                "jsonrpc": "2.0"
+              },
+              {
+                "id": "fe2cac55-8a03-4d63-a8cd-0b07e0f4b816",
+                "method": "createProviderReport",
+                "params": {
+                	"provider":{
+                    "schema": {
+                    	"living": ["Smart Socket 2","Thermometer 1"]
+                    }
+                  }
+                },
+                "jsonrpc": "2.0"
+              },
+            ])

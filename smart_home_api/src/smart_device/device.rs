@@ -48,8 +48,11 @@ pub trait SmartDevice {
         DeviceState::default()
     }
 
+    /// устанавливает статус
+    fn set_device_state(&mut self, device_state: DeviceState) -> String;
+
     /// текущие параметры устройства
-    fn get_current_state(&self) -> String {
+    fn get_current_info(&self) -> String {
         NO_INFO_PROVIDED.to_string()
     }
 
@@ -62,8 +65,17 @@ pub trait SmartDevice {
             self.get_name(),
             self.get_description(),
             self.device_state(),
-            self.get_current_state()
+            self.get_current_info()
         )
+    }
+
+    fn switch(&mut self, to: &str) -> String {
+        match to {
+            "on" => self.set_device_state(DeviceState::On),
+            "off" => self.set_device_state(DeviceState::Off),
+            "broken" => self.set_device_state(DeviceState::Broken),
+            _ => NO_INFO_PROVIDED.to_string(),
+        }
     }
 }
 

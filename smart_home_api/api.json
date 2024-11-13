@@ -1,0 +1,297 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "API v.0.0.0 schema",
+    "$defs": {
+        "non_empty_array_of_string": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "minItems": 2,
+            "uniqueItems": true
+        },
+        "provider": {
+            "type": "object",
+            "properties": {
+                "schema": {
+                    "type": "object",
+                    "minProperties": 1,
+                    "patternProperties": {
+                        "^.+$": {
+                            "$ref": "#/$defs/non_empty_array_of_string"
+                        }
+                    }
+                }
+            },
+            "required": [
+                "schema"
+            ],
+            "maxProperties": 1
+        }
+    },
+    "definitions": {
+        "deviceExecute": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "jsonrpc": {
+                    "const": "2.0"
+                },
+                "method": {
+                    "const": "deviceExecute"
+                },
+                "params": {
+                    "type": "object",
+                    "properties": {
+                        "room": {
+                            "type": "string"
+                        },
+                        "device": {
+                            "type": "string"
+                        },
+                        "command": {
+                            "enum": [
+                                "get_name",
+                                "get_description",
+                                "get_current_info",
+                                "report",
+                                "switch"
+                            ]
+                        },
+                        "data": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "required": [
+                        "room",
+                        "device",
+                        "command",
+                        "data"
+                    ],
+                    "additionalProperties": false
+                }
+            },
+            "required": [
+                "jsonrpc",
+                "method",
+                "id",
+                "params"
+            ],
+            "additionalProperties": false
+        },
+        "addRoom": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "jsonrpc": {
+                    "const": "2.0"
+                },
+                "method": {
+                    "const": "addRoom"
+                },
+                "params": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        }
+                    },
+                    "minProperties": 1,
+                    "additionalProperties": false
+                }
+            },
+            "required": [
+                "jsonrpc",
+                "method",
+                "id",
+                "params"
+            ],
+            "additionalProperties": false
+        },
+        "delRoom": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "jsonrpc": {
+                    "const": "2.0"
+                },
+                "method": {
+                    "const": "delRoom"
+                },
+                "params": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        }
+                    },
+                    "minProperties": 1,
+                    "additionalProperties": false
+                }
+            },
+            "required": [
+                "jsonrpc",
+                "method",
+                "id",
+                "params"
+            ],
+            "additionalProperties": false
+        },
+        "getDevices": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "jsonrpc": {
+                    "const": "2.0"
+                },
+                "method": {
+                    "const": "getDevices"
+                },
+                "params": {
+                    "type": "object",
+                    "properties": {
+                        "room": {
+                            "type": "string"
+                        }
+                    },
+                    "minProperties": 1,
+                    "additionalProperties": false
+                }
+            },
+            "required": [
+                "jsonrpc",
+                "method",
+                "id",
+                "params"
+            ],
+            "additionalProperties": false
+        },
+        "createReport": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "jsonrpc": {
+                    "const": "2.0"
+                },
+                "method": {
+                    "const": "createReport"
+                },
+                "params": {
+                    "type": "object",
+                    "properties": {},
+                    "minProperties": 0,
+                    "additionalProperties": false
+                }
+            },
+            "required": [
+                "jsonrpc",
+                "method",
+                "id",
+                "params"
+            ],
+            "additionalProperties": false
+        },
+        "createProviderReport": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "jsonrpc": {
+                    "const": "2.0"
+                },
+                "method": {
+                    "const": "createProviderReport"
+                },
+                "params": {
+                    "type": "object",
+                    "properties": {
+                        "provider": {
+                            "$ref": "#/$defs/provider"
+                        }
+                    },
+                    "minProperties": 0,
+                    "additionalProperties": false,
+                    "required": [
+                        "provider"
+                    ]
+                }
+            },
+            "required": [
+                "jsonrpc",
+                "method",
+                "id",
+                "params"
+            ],
+            "additionalProperties": false
+        },
+        "reset": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "jsonrpc": {
+                    "const": "2.0"
+                },
+                "method": {
+                    "const": "reset"
+                },
+                "params": {
+                    "type": "object",
+                    "properties": {},
+                    "minProperties": 0,
+                    "additionalProperties": false
+                }
+            },
+            "required": [
+                "jsonrpc",
+                "method",
+                "id",
+                "params"
+            ],
+            "additionalProperties": false
+        }
+    },
+    "type": "array",
+    "items": {
+        "type": "object",
+        "oneOf": [
+            {
+                "$ref": "#/definitions/addRoom"
+            },
+            {
+                "$ref": "#/definitions/delRoom"
+            },
+            {
+                "$ref": "#/definitions/getDevices"
+            },
+            {
+                "$ref": "#/definitions/createReport"
+            },
+            {
+                "$ref": "#/definitions/createProviderReport"
+            },
+            {
+                "$ref": "#/definitions/reset"
+            },
+            {
+                "$ref": "#/definitions/deviceExecute"
+            }
+        ]
+    },
+    "uniqueItems": true
+}

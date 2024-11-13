@@ -50,7 +50,17 @@ impl SmartDevice for Kettle {
         self.state
     }
 
-    fn get_current_state(&self) -> String {
+    fn set_device_state(&mut self, device_state: DeviceState) -> String {
+        match self.state {
+            DeviceState::Off | DeviceState::On => {
+                self.state = device_state;
+                "state was set".into()
+            }
+            DeviceState::Broken => "Can't change state, device is broken!".into(),
+        }
+    }
+
+    fn get_current_info(&self) -> String {
         let t = self.get_current_temperature();
         let wv = self.get_current_water_volume();
         format!("В чайнике: {wv:.2} л воды, Текущая температура: {t:.2} °C")

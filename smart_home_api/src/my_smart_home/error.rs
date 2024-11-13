@@ -23,4 +23,12 @@ impl From<String> for SmartHomeError {
     }
 }
 
+impl From<&str> for SmartHomeError {
+    fn from(err: &str) -> Self {
+        SmartHomeError {
+            msg: err.to_string(),
+        }
+    }
+}
+
 pub type SmartHomeResult<T> = Result<T, SmartHomeError>;

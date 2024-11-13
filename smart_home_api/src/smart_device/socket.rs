@@ -58,7 +58,17 @@ impl SmartDevice for Socket {
         self.state
     }
 
-    fn get_current_state(&self) -> String {
+    fn set_device_state(&mut self, device_state: DeviceState) -> String {
+        match self.state {
+            DeviceState::Off | DeviceState::On => {
+                self.state = device_state;
+                "state was set".into()
+            }
+            DeviceState::Broken => "Can't change state, device is broken!".into(),
+        }
+    }
+
+    fn get_current_info(&self) -> String {
         let pw = self.get_current_power();
         format!("Текущая мощность: {pw:.2} Вт")
     }

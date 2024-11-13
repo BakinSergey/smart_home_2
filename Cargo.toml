@@ -1,7 +1,9 @@
 [workspace]
 members = [
     "smart_home_api",
-    "smart_home_cmd"
+    "smart_home_tcp_server",
+    "smart_home_tcp_client",
+    "stp"
 ]
 
 resolver = "2"

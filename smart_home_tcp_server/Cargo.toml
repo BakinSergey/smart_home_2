@@ -1,5 +1,5 @@
 [package]
-name = "smart_home_cmd"
+name = "smart_home_server"
 version = "0.1.0"
 edition = "2021"
 

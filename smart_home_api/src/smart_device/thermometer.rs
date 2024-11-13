@@ -36,8 +36,18 @@ impl SmartDevice for Thermometer {
         self.state
     }
 
-    fn get_current_state(&self) -> String {
+    fn get_current_info(&self) -> String {
         let t = self.get_current_temperature();
         format!("Текущая температура: {t:.2} °C")
+    }
+
+    fn set_device_state(&mut self, device_state: DeviceState) -> String {
+        match self.state {
+            DeviceState::Off | DeviceState::On => {
+                self.state = device_state;
+                "ok, state was set".into()
+            }
+            DeviceState::Broken => "failed, can't change state, device is broken!".into(),
+        }
     }
 }

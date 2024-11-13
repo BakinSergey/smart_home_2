@@ -1,11 +1,9 @@
 [package]
-name = "smart_home_api"
+name = "smart_home_tcp_client"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-stp = { version = "0.1.0", path = "../stp" }
+smart_home_api = { version = "0.1.0", path = "../smart_home_api" }
 serde = { version = "1.0.214", features = ["derive"]}
 serde_json = "1.0.132"
-erased-serde = "0.4.5"
-jsonschema = {version = "0.26.1"}
