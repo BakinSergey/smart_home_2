@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 use serde_json::{json, Value};
 use smart_home_api::home_client::RpcOverStpClient;
 use smart_home_api::DEFAULT_SOCKET;
