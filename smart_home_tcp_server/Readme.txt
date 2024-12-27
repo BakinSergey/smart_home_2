@@ -86,3 +86,143 @@ TCP-клиент умной розетки, позволяющий:
 uc7.1 Включать и выключать розетку,
 uc7.2 Запрашивать информацию о текущем состоянии и потребляемой мощности розетки.
 uc7.3 Также, для проверки нового функционала, реализовать приложение, имитирующее работу умной розетки, управляемой по TCP.
+
+===========================================================
+
+ДЗ №8 Термометр по UDP
+Домашнее задание
+Термометр по UDP
+
+Цель:
+Научиться использовать отдельный поток для I/O задач.
+
+Результатом является:
+Модуль работы с термометром и его имитатор.
+
+Описание/Пошаговая инструкция выполнения домашнего задания:
+uc8.1 Реализовать термометр, периодически обновляющий данные о температуре, получая их с заданного сокета по UDP.
+uc8.2 Для прослушивания UDP предлагается запустить цикл получения датаграмм в отдельном потоке.
+uc8.3 Для проверки нового функционала, реализовать приложение, имитирующее работу термометра, отправляющего показания на заданный UDP сокет.
+
+Критерии оценки:
+Статус "Принято" вставится, если:
+
+Присутствует весь функционал из описания.
+Выполняются тесты функционала из описания.
+Утилита cargo clippy не выдаёт предупреждений.
+Команда cargo fmt --check не выдаёт предупреждений.
+
+
+===========================================================
+
+ДЗ №10 Крейт thiserror
+
+Домашнее задание
+Крейт thiserror
+
+Цель:
+Научиться пользоваться библиотекой thiserror.
+
+Результатом является:
+Рефакторинг библиотеки "умный дом".
+
+Описание/Пошаговая инструкция выполнения домашнего задания:
+Заменить ручную реализацию обработки ошибок в библиотеке "умный дом" на использование крейта thiserror.
+
+Критерии оценки:
+Статус "Принято" ставится, если:
+
+Библиотека компилируется, тесты выполняются.
+Реализации трейтов Error, Display и From заменены на макросы из thiserror, где это возможно.
+Утилита cargo clippy не выдаёт предупреждений.
+Команда cargo fmt --check не выдаёт предупреждений.
+
+Компетенции:
+Работа с архитектурой
+- применение различных подходов при обработке ошибок
+- вспомогательные крейты this error и anyhow
+
+==============================================
+Реализация:
+
+крейт thiserror был применен в крейтах:
+ - smart_home_api/stp (модуль error)
+ - smart_home_api/my_smart_home (модули error, smart_home)
+
+крейт anyhow был применен в крейтах:
+ - smart_home_api/my_smart_home (модуль smart_home_tcp, ф-я serve_public)
+ - smart_home_api/json_rpc (модуль utils, ф-я get_validator)
+
+
+Запуск
+сервер:
+run --package smart_home_server --bin smart_home_server
+
+клиент:
+run --package smart_home_tcp_client --bin smart_home_tcp_client
+
+после запуска можно выполнять JsonRPC batch-request
+например(ниже) batch 0 0 вернет:
+- на первый запрос(0) - success результат
+- на второй запрос(0) - error результат(ошибка будет сформирована thiserror)
+
+------------------
+Smart Home Client
+Input any batch of num of given requests, separated by space
+for example: 1 2 5, or 1 1 2, and then press ENTER for rr via jsonRPC
+------------------
+Predefined requests:
+0 - addRoom library
+1 - delRoom kitchen
+2 - getDevices at living
+3 - create total report
+4 - reset afterwards cmds in batch(for ex: [1 2 4 7 8] -> 7,8 won't be executed)
+5 - deviceExecute: living room, Thermometer 1, get_current_info
+6 - deviceExecute: storeroom, Smart Socket 6 get_report
+7 - deviceExecute: bedroom, Smart Socket 3, switch on
+8 - deviceExecute: storeroom, Smart Socket 4, switch on
+9 - createProviderReport: schema = 'living': ['Socket 2','Thermo 1']
+10- deviceExecute: kitchen room, Thermometer 1, get_current_info
+11- deviceExecute: storeroom, Smart Socket 4, switch off
+------------------
+
+0 0
+request:
+[
+  {
+    "id": "bdf90afa-a688-4179-841b-9de390e6c9fa",
+    "jsonrpc": "2.0",
+    "method": "addRoom",
+    "params": {
+      "name": "library"
+    }
+  },
+  {
+    "id": "bdf90afa-a688-4179-841b-9de390e6c9fa",
+    "jsonrpc": "2.0",
+    "method": "addRoom",
+    "params": {
+      "name": "library"
+    }
+  }
+]
+response:
+
+[
+  {
+    "jsonrpc": "2.0",
+    "id": "bdf90afa-a688-4179-841b-9de390e6c9fa",
+    "result": {
+      "data": "addRoom: success"
+    }
+  },
+  {
+    "jsonrpc": "2.0",
+    "id": "bdf90afa-a688-4179-841b-9de390e6c9fa",
+    "error": {
+      "code": 1,
+      "message": "Api logic error",
+      "data": "addRoom error: room with same name exist in home: MyHome"
+    }
+  }
+]

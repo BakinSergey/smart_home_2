@@ -10,35 +10,29 @@ use crate::my_smart_home::home::Home;
 use crate::my_smart_home::smart_home::SmartHome;
 use serde_json as json;
 
-use std::error::Error;
-use std::fs;
+use std::path::PathBuf;
+use stp::server::StpServer;
 
-pub trait SmartHomeTcp {
+use crate::command::queue::RPCQueue;
+use crate::json_rpc::request::JsonRpcRequest;
+use crate::json_rpc::utils::{get_validator, unquoted};
+use crate::DEFAULT_TCP_SOCKET;
+
+pub trait SmartHomePublicApi {
     /// запустить цикл обслуживания клиентов
-    fn serve(&mut self) -> Result<(), Box<dyn Error>>;
+    fn serve_public(&mut self) -> anyhow::Result<String>;
     /// выполнить RPC-запрос клиента
-    fn execute(&mut self) -> String;
+    fn execute(&mut self, requests: &mut RPCQueue<JsonRpcRequest>) -> String;
 }
 
-impl SmartHomeTcp for Home {
-    fn serve(&mut self) -> Result<(), Box<dyn Error>> {
-        let jdata: Result<String, std::io::Error> = fs::read_to_string("smart_home_api/api.json");
-        let s = match jdata {
-            Ok(s) => s,
-            Err(_) => panic!("json schema file read failed"),
-        };
-
-        // jsonschema, по которой будем валидировать JsonRPC запросы к API
-        let schema = json::from_str(&s).expect("parse json failed");
-        let validator = match jsonschema::validator_for(&schema) {
-            Ok(validator) => validator,
-            Err(e) => panic!("{}", format!("parse schema error: {e}!")),
-        };
-
-        // цикл обработки запросов.
+impl SmartHomePublicApi for Home {
+    fn serve_public(&mut self) -> anyhow::Result<String> {
+        let stp = StpServer::bind(DEFAULT_TCP_SOCKET)?;
+        let mut requests = RPCQueue::<JsonRpcRequest>::default();
+        let validator = get_validator(PathBuf::from("./smart_home_api/public_api.json"))?;
 
         loop {
-            let Ok(mut connection) = self.bus.accept() else {
+            let Ok(mut connection) = stp.accept() else {
                 continue;
             };
 
@@ -55,12 +49,12 @@ impl SmartHomeTcp for Home {
                     Ok(jsondata) => jsondata,
                     Err(e) => return json::to_string(&parse_error(e.to_string())).unwrap(),
                 };
-
+                println!("{}", data);
                 match validator.is_valid(data) {
                     true => {
                         let batch = json::from_value(data.to_owned()).unwrap();
-                        self.requests.push(batch);
-                        self.execute() // collect butch of result
+                        requests.push(batch);
+                        self.execute(&mut requests) // collect butch of result
                     }
 
                     false => {
@@ -76,14 +70,15 @@ impl SmartHomeTcp for Home {
         }
     }
 
-    fn execute(&mut self) -> String {
+    fn execute(&mut self, requests: &mut RPCQueue<JsonRpcRequest>) -> String {
         let mut replies: Vec<Box<dyn JsonRpcReplyMsg>> = vec![];
 
-        while let Some(rpc_cmd) = self.requests.pop() {
+        while let Some(rpc_cmd) = requests.pop() {
             let mut error_code: i32 = 0; // 1 - SmartHome Api Errors
+
             let resp = match rpc_cmd.method.as_str() {
                 "addRoom" => {
-                    let room_name = rpc_cmd.params["name"].to_string();
+                    let room_name = unquoted(&rpc_cmd.params["name"]);
                     match self.add_room(room_name, vec![]) {
                         Ok(()) => "addRoom: success".to_string(),
                         Err(e) => {
@@ -93,7 +88,9 @@ impl SmartHomeTcp for Home {
                     }
                 }
                 "delRoom" => {
-                    let room_name = rpc_cmd.params["name"].to_string();
+                    let room_name = unquoted(&rpc_cmd.params["name"]);
+
+                    println!("{}", room_name);
                     match self.del_room(&room_name) {
                         Ok(()) => "delRoom: success".to_string(),
                         Err(e) => {
@@ -104,7 +101,8 @@ impl SmartHomeTcp for Home {
                 }
 
                 "getDevices" => {
-                    let room_name = rpc_cmd.params["name"].to_string();
+                    let room_name = unquoted(&rpc_cmd.params["room"]);
+                    println!("{}", room_name);
                     match self.get_devices(&room_name) {
                         Ok(res) => res
                             .iter()
@@ -131,7 +129,7 @@ impl SmartHomeTcp for Home {
                 }
 
                 "reset" => {
-                    self.requests.reset();
+                    requests.reset();
                     "reset: success".to_string()
                 }
 
@@ -142,27 +140,25 @@ impl SmartHomeTcp for Home {
                     let data = rpc_cmd.params.clone()["data"].clone();
 
                     let res = match self.mut_device(room, device) {
-                        Ok(dev) => {
-                            return match command {
-                                "get_name" => dev.get_name(),
-                                "get_description" => dev.get_description(),
-                                "get_current_info" => dev.get_current_info(),
-                                "report" => dev.report(),
-                                "switch" => match data[0].as_str() {
-                                    Some(state) => dev.switch(state),
-                                    None => {
-                                        error_code = -32602;
-                                        format!("wrong status provided: {}", data.as_str().unwrap())
-                                    }
-                                },
-                                _ => {
-                                    error_code = -32601;
-                                    "wrong device command".to_string()
+                        Ok(dev) => match command {
+                            "get_name" => dev.get_name(),
+                            "get_description" => dev.get_description(),
+                            "get_current_info" => dev.get_current_info(),
+                            "report" => dev.report(),
+                            "switch" => match data[0].as_str() {
+                                Some(state) => dev.switch(state),
+                                None => {
+                                    error_code = -32602;
+                                    format!("wrong status provided: {}", data.as_str().unwrap())
                                 }
+                            },
+                            _ => {
+                                error_code = -32601;
+                                "wrong device command".to_string()
                             }
-                        }
+                        },
                         Err(e) => {
-                            error_code = -32602;
+                            error_code = 1;
                             format!("error: {e}")
                         }
                     };
@@ -174,6 +170,8 @@ impl SmartHomeTcp for Home {
                     "непредвиденный ответ на непредвиденный запрос :)".to_string()
                 }
             };
+
+            // pack to JsonRPC reply
             let dto: Box<dyn JsonRpcReplyMsg> = match error_code {
                 0 => Box::new(reply(rpc_cmd.id, resp)),
                 1 => Box::new(reply_error(rpc_cmd.id, api_error(resp))),

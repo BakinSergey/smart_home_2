@@ -21,7 +21,8 @@ repos:
       - id: cargo-test
         name: run Rust tests
         description: tests
-        entry: cargo test -- --test-threads=1
+#        entry: cargo test -- --test-threads=1
+        entry: cargo test
         language: system
         types: [rust]
         pass_filenames: false

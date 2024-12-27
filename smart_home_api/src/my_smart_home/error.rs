@@ -1,34 +1,18 @@
-use std::fmt::{Formatter, Result as FmtResult};
+use thiserror;
 
-#[derive(Debug)]
-pub struct SmartHomeError {
-    pub msg: String,
-}
+#[derive(Debug, thiserror::Error)]
+pub enum SmartHomeError {
+    #[error("room: {0} not exist")]
+    RoomNonExist(String),
 
-impl std::fmt::Display for SmartHomeError {
-    fn fmt(&self, f: &mut Formatter) -> FmtResult {
-        write!(f, "{}", self.msg)
-    }
-}
+    #[error("room with same name exist in home: {0}")]
+    RoomSameNameExistInHome(String),
 
-impl std::error::Error for SmartHomeError {
-    fn description(&self) -> &str {
-        &self.msg
-    }
-}
+    #[error("device: {name:?} not exist in room: {room:?}")]
+    NoDeviceInRoom { name: String, room: String },
 
-impl From<String> for SmartHomeError {
-    fn from(err: String) -> Self {
-        SmartHomeError { msg: err }
-    }
-}
-
-impl From<&str> for SmartHomeError {
-    fn from(err: &str) -> Self {
-        SmartHomeError {
-            msg: err.to_string(),
-        }
-    }
+    #[error("device with same name exist in room: {0}")]
+    DeviceSameNameExistInRoom(String),
 }
 
 pub type SmartHomeResult<T> = Result<T, SmartHomeError>;

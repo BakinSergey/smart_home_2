@@ -1,3 +1,1 @@
-mod queue;
-
-pub use queue::*;
+pub mod queue;

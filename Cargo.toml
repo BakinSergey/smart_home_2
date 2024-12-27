@@ -4,6 +4,6 @@ members = [
     "smart_home_tcp_server",
     "smart_home_tcp_client",
     "stp"
-]
+    ]
 
 resolver = "2"

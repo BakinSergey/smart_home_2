@@ -9,7 +9,7 @@ use std::error::Error;
 
 use my_smart_home::home::Home;
 use my_smart_home::smart_home::SmartHome;
-use my_smart_home::smart_home_tcp::SmartHomeTcp;
+use my_smart_home::smart_home_tcp::SmartHomePublicApi;
 
 // test SmartHome structure
 //
@@ -58,7 +58,7 @@ fn init_home() -> Result<Home, Box<dyn Error>> {
     home.add_room(living.clone(), living_devices).unwrap();
     let same_room = home.add_room(living, vec![]);
     assert!(same_room.is_err());
-    assert!(same_room.err().unwrap().msg.contains("уже есть"));
+    assert!(same_room.err().unwrap().to_string().contains("same name"));
 
     let bedroom = "bedroom".to_string();
     let bedroom_devices: VecOfDevice = vec![Box::new(socket3), Box::new(thermo2)];
@@ -76,7 +76,7 @@ fn init_home() -> Result<Home, Box<dyn Error>> {
 fn main() -> Result<(), Box<dyn Error>> {
     let mut home: Home = init_home()?;
 
-    home.serve()?;
+    home.serve_public()?;
 
     Ok(())
 }

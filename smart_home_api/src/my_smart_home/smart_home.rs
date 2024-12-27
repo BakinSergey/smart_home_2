@@ -26,7 +26,7 @@ impl SmartHome for Home {
     fn room(&self, name: &str) -> SmartHomeResult<()> {
         match self.rooms.get(name) {
             Some(_) => Ok(()),
-            None => Err(SmartHomeError::from(format!("нет помещения: {}", name))),
+            None => Err(SmartHomeError::RoomNonExist(name.to_string())),
         }
     }
 
@@ -34,10 +34,10 @@ impl SmartHome for Home {
         self.room(room)?;
         match self.rooms.get(room).unwrap().get(name) {
             Some(device) => Ok(&**device),
-            None => Err(SmartHomeError::from(format!(
-                "в помещении {} нет устройства: {}",
-                room, name
-            ))),
+            None => Err(SmartHomeError::NoDeviceInRoom {
+                name: name.to_string(),
+                room: room.to_string(),
+            }),
         }
     }
 
@@ -45,10 +45,10 @@ impl SmartHome for Home {
         self.room(room)?;
         match self.rooms.get_mut(room).unwrap().get_mut(name) {
             Some(device) => Ok(&mut **device),
-            None => Err(SmartHomeError::from(format!(
-                "в помещении {} нет устройства: {}",
-                room, name
-            ))),
+            None => Err(SmartHomeError::NoDeviceInRoom {
+                name: name.to_string(),
+                room: room.to_string(),
+            }),
         }
     }
 
@@ -59,9 +59,7 @@ impl SmartHome for Home {
 
     fn add_room(&mut self, name: String, devices: VecOfDevice) -> SmartHomeResult<()> {
         if self.room(&name).is_ok() {
-            return Err(SmartHomeError::from(
-                "Помещение с таким именем уже есть в доме".to_owned(),
-            ));
+            return Err(SmartHomeError::RoomSameNameExistInHome(self.name.clone()));
         }
 
         self.rooms.insert(name.clone(), HashMap::new());
@@ -103,9 +101,7 @@ impl SmartHome for Home {
         self.room(room)?;
         let device_name = device.get_name();
         match self.device(room, &device_name) {
-            Ok(_) => Err(SmartHomeError::from(
-                "Устройство с таким именем уже есть в помещении".to_owned(),
-            )),
+            Ok(_) => Err(SmartHomeError::DeviceSameNameExistInRoom(room.to_string())),
             Err(_) => {
                 self.rooms
                     .get_mut(room)
@@ -165,7 +161,7 @@ impl SmartHome for Home {
                     report += "\n";
                     let part = info_provider
                         .get_device_info(self, &room, device)
-                        .unwrap_or_else(|e| e.msg);
+                        .unwrap_or_else(|e| e.to_string());
                     report += format!("--> {}\n", part).as_str();
                 }
                 provider_devices.remove(&dev_id);

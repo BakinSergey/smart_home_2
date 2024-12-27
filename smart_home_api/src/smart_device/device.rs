@@ -1,4 +1,5 @@
-use std::fmt;
+use std::time::Duration;
+use std::{fmt, thread};
 
 pub const NO_INFO_PROVIDED: &str = "No information provided";
 
@@ -54,6 +55,10 @@ pub trait SmartDevice {
     /// текущие параметры устройства
     fn get_current_info(&self) -> String {
         NO_INFO_PROVIDED.to_string()
+    }
+
+    fn send_notify(&self, interval: u64) {
+        thread::sleep(Duration::from_secs(interval));
     }
 
     fn report(&self) -> String {

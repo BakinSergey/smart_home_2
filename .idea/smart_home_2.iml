@@ -4,6 +4,10 @@
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/smart_home_api/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/smart_home_cmd/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/smart_home_tcp_client/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/smart_home_tcp_server/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/stp/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/test_room/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/smart_home_cmd/target" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
       <excludeFolder url="file://$MODULE_DIR$/smart_home_api/target" />

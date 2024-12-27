@@ -91,4 +91,26 @@ json!([
                 },
                 "jsonrpc": "2.0"
               },
+              {
+                "id": "c4220b7c-247b-4cf5-b0c3-fcfc2622a0fd",
+                "method": "deviceExecute",
+                "params": {
+                  "room": "kitchen",
+                  "device": "Thermometer 1",
+                  "command": "get_current_info",
+                  "data": []
+                },
+                "jsonrpc": "2.0"
+              },
+              {
+                  "id": "0f13cab5-b624-4f0b-a34b-653c2d8c954f",
+                  "method": "deviceExecute",
+                  "params": {
+                    "room": "storeroom",
+                    "device": "Smart Socket 4",
+                    "command": "switch",
+                    "data": ["off"]
+                  },
+                  "jsonrpc": "2.0"
+              }
             ])

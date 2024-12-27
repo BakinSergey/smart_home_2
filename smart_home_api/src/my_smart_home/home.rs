@@ -4,17 +4,10 @@ use crate::smart_device::device::SmartDevice;
 
 use std::collections::HashMap;
 use std::error::Error;
-use stp::server::StpServer;
-
-use crate::command::RPCQueue;
-use crate::json_rpc::request::JsonRpcRequest;
-use crate::DEFAULT_SOCKET;
 
 pub struct Home {
     pub name: String,
-    pub(crate) rooms: HashMap<String, HashMap<String, Box<dyn SmartDevice>>>,
-    pub(crate) bus: StpServer,
-    pub(crate) requests: RPCQueue<JsonRpcRequest>,
+    pub rooms: HashMap<String, HashMap<String, Box<dyn SmartDevice>>>,
 }
 
 impl Home {
@@ -22,8 +15,6 @@ impl Home {
         let home = Home {
             name,
             rooms: HashMap::new(),
-            bus: StpServer::bind(DEFAULT_SOCKET)?,
-            requests: RPCQueue::<JsonRpcRequest>::default(),
         };
 
         Ok(home)
@@ -90,11 +81,7 @@ mod test {
         let res = home.add_room(room.clone(), VecOfDevice::new());
 
         assert!(res.is_err());
-        assert!(res
-            .err()
-            .unwrap()
-            .to_string()
-            .contains("с таким именем уже есть"));
+        assert!(res.err().unwrap().to_string().contains("same name"));
 
         //но после удаления, можем добавить
         home.rooms.remove(&room.clone());
@@ -123,6 +110,8 @@ mod test {
         let rooms_before = home.get_rooms().len();
         let res = home.del_room(&room);
         assert!(res.is_err());
+        assert!(res.err().unwrap().to_string().contains("not exist"));
+
         assert_eq!(home.get_rooms().len(), rooms_before);
     }
 
@@ -144,6 +133,12 @@ mod test {
         let device_before = home.get_devices(&room).unwrap().len();
         let twice_device = home.add_device(&room, Box::new(socket1clone));
         assert!(twice_device.is_err());
+        assert!(twice_device
+            .err()
+            .unwrap()
+            .to_string()
+            .contains("same name"));
+
         let device_after = home.get_devices(&room).unwrap().len();
         assert_eq!(device_before, device_after);
     }
@@ -174,10 +169,12 @@ mod test {
 
         let del_device = home.del_device(&room, "Smart Socket 1");
         assert!(del_device.is_err());
+        assert!(del_device.err().unwrap().to_string().contains("not exist"));
 
         // удалить устройство к-го нет в комнате не получится
         let del_device = home.del_device(&another_room, "Smart Socket 2");
         assert!(del_device.is_err());
+        assert!(del_device.err().unwrap().to_string().contains("not exist"));
 
         assert_eq!(home.get_devices(&room).unwrap().len(), 1);
         let _ = home.del_device(&room, "Smart Socket 2");
