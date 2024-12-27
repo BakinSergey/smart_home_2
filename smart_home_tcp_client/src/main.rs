@@ -65,6 +65,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         let req = Value::Array(v); // send as batch,  even if single request.
 
         println!("request:\n{:#}", req);
+        println!();
         println!("response:\n");
         // server will reply with JsonRPC 2.0, so, u can deser it, cool!
 
