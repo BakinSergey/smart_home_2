@@ -89,8 +89,6 @@ impl SmartHomePublicApi for Home {
                 }
                 "delRoom" => {
                     let room_name = unquoted(&rpc_cmd.params["name"]);
-
-                    println!("{}", room_name);
                     match self.del_room(&room_name) {
                         Ok(()) => "delRoom: success".to_string(),
                         Err(e) => {
@@ -102,7 +100,6 @@ impl SmartHomePublicApi for Home {
 
                 "getDevices" => {
                     let room_name = unquoted(&rpc_cmd.params["room"]);
-                    println!("{}", room_name);
                     match self.get_devices(&room_name) {
                         Ok(res) => res
                             .iter()
@@ -162,7 +159,6 @@ impl SmartHomePublicApi for Home {
                             format!("error: {e}")
                         }
                     };
-                    // println!("{res}");
                     res
                 }
                 _ => {
