@@ -38,7 +38,7 @@ mod test {
         let rooms: HashSet<String> =
             HashSet::from(["Kitchen".into(), "Dining".into(), "Living".into()]);
         for room in rooms {
-            match home.add_room(String::from(room), VecOfDevice::new()) {
+            match home.add_room(room, VecOfDevice::new()) {
                 Ok(_) => (),
                 Err(e) => println!("{}", e),
             };
@@ -58,7 +58,7 @@ mod test {
         let rooms = home.get_rooms();
 
         for room in &rooms {
-            assert_eq!(home.get_devices(&room).unwrap().len() == 0usize, true);
+            assert!(home.get_devices(room).unwrap().is_empty());
         }
     }
 
